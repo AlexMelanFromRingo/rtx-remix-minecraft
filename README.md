@@ -1,209 +1,132 @@
-# RTX Remix for Minecraft
+<div align="center">
 
-Play Minecraft Java Edition 1.21.1 with real-time path tracing on a GeForce RTX
-GPU, powered by NVIDIA RTX Remix.
+# RTX Remix for Minecraft · 26.3
 
-## What To Expect
+**Real-time path tracing for Minecraft Java Edition 26.3, powered by NVIDIA RTX Remix.**
 
-This is a beta. It was built as a technology showcase, but we love Minecraft
-and want it to succeed as a rendering mod. We tuned it against one showcase
-world, built for this project by [BlockWorks](https://www.blockworks.uk/) (see
-[Showcase World And Materials Pack](#showcase-world-and-materials-pack)), and the places
-that world visits are where it looks and runs best. We have worked hard to fix
-as many issues as we could, but it ships with
-[known issues](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/issues),
-and there are certainly bugs yet to be discovered.
+A community port of [NVIDIA's RTX Remix for Minecraft](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft) from 1.21.1 to the first unobfuscated generation of Minecraft.
 
-Three areas have had less attention than the rest:
+[![Minecraft 26.3](https://img.shields.io/badge/Minecraft-26.3-62B47A?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net/)
+[![Fabric Loader 0.20.1](https://img.shields.io/badge/Fabric-0.20.1-DBD0B4?style=for-the-badge)](https://fabricmc.net/)
+[![Java 25](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/)
+[![RTX Remix](https://img.shields.io/badge/RTX_Remix-path_tracing-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://github.com/NVIDIAGameWorks/rtx-remix)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
 
-- **Other mods.** It has had limited testing alongside other mods, and a
-  renderer that takes over the scene the way this one does is likely to
-  conflict with anything that changes rendering or the chunk pipeline.
-- **A full playthrough.** Blocks, mobs, dimensions, and situations the showcase
-  never reaches have had less care, and some will look wrong or run slowly.
-- **Other versions.** The complete renderer targets Minecraft 1.21.1, chosen
-  because that is where the modding community is today. The repository keeps
-  each Minecraft target under `versions/<version>/`; 1.21.1 currently declares
-  Fabric, Forge, and NeoForge without copying the canonical renderer.
+[![Upstream PR](https://img.shields.io/badge/upstream_PR-%2379_in_review-8957e5?style=flat-square&logo=github)](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/pull/79)
+![Status](https://img.shields.io/badge/status-alpha-orange?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows_x64_·_RTX_30+-lightgrey?style=flat-square)
 
-We hope the community helps fill it out. If something breaks,
-[report it](docs/PLAYING.md#reporting-a-bug); if you can fix it, see
-[Contributing](#contributing).
+<img src="docs/media/beach-day.jpg" alt="A sandy beach, forest and sea at midday, path traced" width="100%">
 
-## Download
+</div>
 
-Download the installer bundle,
-`rtx-remix-renderer-mc<minecraft-version>-<mod-version>-installer.zip`,
-from the
-[Releases page](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/releases/latest).
-It holds one self-contained JAR for each loader declared by the release
-(currently Fabric, Forge, and NeoForge), the
-[RTX Remix Materials pack and the RTX Remix Showcase World](#showcase-world-and-materials-pack),
-and the installer that sets them up. The installer asks which loader to use;
-JARs are under `mods/<loader-id>/` for manual installation.
+---
 
-## Install in four steps
+## ✨ What this is
 
-1. Extract the installer bundle.
-2. Double-click `install.bat` and follow the menu. Pick a launcher, keep
-   RTX Remix Renderer, RTX Remix Materials, and RTX Remix Showcase World
-   ticked, choose a loader offered by the release, and press Enter on Continue.
-3. Sign in, and launch the **NVIDIA RTX Remix for Minecraft** profile from
-   your launcher.
-4. Open Singleplayer and choose **NVIDIA RTX Demo**.
+The original mod renders Minecraft **1.21.1** through RTX Remix, and its README hopes the community will port it to newer versions. This fork does that for **Minecraft 26.3**: every block, mob, item, particle, the sky and the clouds are lit by a path tracer, with the same feature set as upstream 0.1.1.
 
-The step-by-step version, with launcher advice and troubleshooting, is in
-[Playing](docs/PLAYING.md).
+The port sits on upstream's multi-version, multi-loader layout: one checkout builds Minecraft 26.3 with Fabric from `versions/26.3/`, and still builds upstream's Minecraft 1.21.1 targets for Fabric, Forge and NeoForge, unchanged.
 
-## Requirements
+Minecraft 26.x is a different engine underneath: it ships unobfuscated, renders through the new *renderpearl* layer and SDL3, and draws the world through an **extract → submit** pipeline. Most of this port is therefore a port of APIs, not names.
 
-- Windows 10 or 11, x64 or ARM64.
-- Minecraft Java Edition 1.21.1, on a Microsoft account that owns the game.
-- A GeForce RTX 30-series or newer GPU with NVIDIA driver 616.92 or newer.
-- About 5 GB of free disk space while installing; about 3 GB stays in use.
-- An internet connection while the installer runs.
-- 16 GB of system memory is recommended.
+<table>
+<tr>
+<td width="50%"><img src="docs/media/light-room.jpg" alt="A stone room lit by glowstone, lanterns, torches and sea lanterns"></td>
+<td width="50%"><img src="docs/media/redstone-room.jpg" alt="A redstone lamp, repeater and redstone torch casting coloured light"></td>
+</tr>
+<tr>
+<td align="center"><sub>Every light source is a real light: torches, lanterns, glowstone</sub></td>
+<td align="center"><sub>Redstone lamps and torches tint the room they light</sub></td>
+</tr>
+</table>
 
-Java 21, the selected mod loader, and the RTX Remix runtime are installed for
-you by the release installer. Fabric API is installed only when you choose
-Fabric; Forge and NeoForge do not use it.
+## 🚀 What changed in the port
 
-Building and running from source has its own
-[prerequisites](docs/GETTING_STARTED.md#prerequisites), including Prism
-Launcher, signed in to a Microsoft account that owns Minecraft: Java Edition.
+| Area | 1.21.1 (upstream) | 26.3 (this fork) |
+|---|---|---|
+| Mappings | Mojang mappings, remapped to intermediary | None: the game is unobfuscated |
+| Toolchain | Loom 1.9, Java 21, Gradle 8.11 | Loom 1.19, **Java 25**, Gradle 9.8, which `gradlew.bat` selects for this target |
+| Window and input | GLFW | SDL3, OpenGL 4.5 core backend forced for Remix interop |
+| Terrain capture | `ChunkBuilder`, Yarn models | `SectionCompiler`, `BlockStateModel` parts, per-quad layers |
+| Entities | Immediate `MultiBufferSource` rendering | `SubmitNodeCollector` capture of extracted render states |
+| Animated textures | CPU uploads | GPU-side animation, forwarded from the animation tick |
 
-## Crash Reports And Privacy
+Highlights:
 
-The mod collects no data of its own. The RTX Remix runtime it carries can send
-basic session information and crash reports to NVIDIA. Its First Use Guide asks
-about both, with both on by default, and the Permissions tab of the RTX Remix
-Graphics Settings menu changes them at any time.
-[Crash Reports And Privacy](docs/PLAYING.md#crash-reports-and-privacy) lists
-what is sent.
+- 🧱 **Terrain** captured from 26.x section compilation, with the atlas padding 26.x introduced filled on every CPU-side atlas copy, so distant blocks stay clean.
+- 🐄 **Entities, block entities, held items and the breaking crack** captured from the new extract and submit pipeline, evaluated once rather than twice.
+- 🔥 **New 26.x light sources**: copper torches and copper lanterns cast light and glow.
+- 🧪 **Bytecode-checked mixins**: 26.x has no refmap, so every mixin was verified against the 26.3 client jar: call sites, `@Shadow` descriptors and handler signatures.
+- 🖼️ **Clean loading while Remix compiles shaders**: a frame Remix has not drawn yet is left out of the picture, as upstream does since #111, instead of showing the previous frame upside down.
 
-## What it does
+The full list is in [upstream PR #79](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/pull/79).
 
-**Every block, mob, and item is lit by a path tracer.** Light bounces off walls,
-through glass, and out of torches the way it does in a film renderer, so shadows,
-reflections, and the colour a nearby block casts on its neighbours are all
-computed rather than painted in.
+## 📋 Requirements
 
-**The look follows the game.** Time of day, weather, and being underwater each
-bring their own lighting, and a map author can attach a look to a place in the
-world. Nothing needs switching on.
+- Windows 10 or 11, x64.
+- Minecraft Java Edition **26.3** on a Microsoft account that owns the game.
+- A GeForce RTX 30-series or newer GPU, NVIDIA driver 616.92 or newer.
+- **Java 25**, Fabric Loader **0.20.1** and Fabric API **0.165.0+26.3**.
+- 16 GB of system memory recommended.
 
-**A new block.** The Copper Beacon is a directional lamp you can place or
-carry, and its beam is a real light that picks out walls, rain, and anything
-standing in it.
+## 🛠️ Install
 
-**Camera flythroughs.** Record a path by walking it, then replay it, for a video
-or for an exact before-and-after comparison.
+**With the installer.** Build the release archive (see [Build from source](#-build-from-source)), extract it, and run `install.bat`. It sets up a Prism Launcher or Minecraft Launcher profile for **Minecraft 26.3** with **Fabric Loader 0.20.1**, **Fabric API 0.165.0+26.3** and **Java 25**, which it downloads when your machine has none. Upgrading an earlier install moves its Prism instance to 26.3. [Playing](docs/PLAYING.md) walks through it.
 
-**A settings screen in the game.** Distances, framerate, sky, lighting,
-exposure, and materials, all in Options, with no config files to edit, and a
-button into Remix's own Graphics Settings for the quality tier.
+**By hand**, in a launcher you already use:
 
-## Showcase World And Materials Pack
+1. Create an instance for **Minecraft 26.3** with **Fabric Loader 0.20.1**, running on **Java 25**.
+2. Put [Fabric API 0.165.0+26.3](https://modrinth.com/mod/fabric-api) and the mod JAR into the instance's `mods` folder.
+3. Launch. On first start the mod unpacks the RTX Remix runtime next to the game; the Remix menu opens with **Alt+X**.
 
-Two extras go with the mod. Each release carries both, inside the installer
-bundle and as files of their own, and the installer puts them in place. The
-developer launcher in [`tools/`](tools/README.md) downloads both the first
-time it runs and launches into the world with the pack on.
+A 1.21.1 world opens in 26.3 after Minecraft's usual upgrade, and zones you saved with `/rtx zone define` come along. Keep a copy of the original if you still play it on 1.21.1.
 
-- **RTX Remix Materials**, a texture resource pack created by an art team at
-  NVIDIA, is the look the renderer was made for, and the recommended way to
-  play. The installer turns it on above the textures built into the mod and
-  below your own packs. Without it, the mod's built-in baseline textures give
-  vanilla's textures simpler materials. Its normal and specular maps follow the
-  [LabPBR standard](https://shaderlabs.org/wiki/LabPBR_Material_Standard), so
-  other renderers and shader packs that read LabPBR may be able to use it too,
-  but it has only been tested with this mod. Its `_sss` subsurface maps are
-  this mod's own addition, described in
-  [Resource Packs](docs/RESOURCE_PACKS.md).
-- **RTX Remix Showcase World**, the map the renderer was tuned against, was
-  built for this project by BlockWorks: [website](https://www.blockworks.uk/),
-  [YouTube](https://www.youtube.com/@BlockWorksYT),
-  [X](https://x.com/BlockWorksYT), and
-  [Instagram](https://www.instagram.com/blockworks/). The installer unpacks it
-  as **NVIDIA RTX Demo** under Singleplayer, and never overwrites a copy you
-  already have.
+## 🧩 Build from source
 
-To add either by hand, take `RTX-Remix-Materials-<version>.zip` or
-`RTX-Remix-Showcase-World-<version>.zip` from the release and follow
-[Installing Without The Installer](docs/PLAYING.md#installing-without-the-installer).
+```powershell
+git clone https://github.com/AlexMelanFromRingo/rtx-remix-minecraft.git
+cd rtx-remix-minecraft
+$env:JAVA_HOME = "C:\Path\To\jdk-25"
+.\gradlew.bat build test "-PmcVersion=26.3" "-Ploader=fabric"
+.\gradlew.bat package "-PmcVersion=26.3" "-Ploader=fabric" -Parch=win64
+```
 
-## Start Here
+`-PmcVersion=26.3` selects this target, and `gradlew.bat` then runs the Gradle 9.8 it needs; without it the checkout builds upstream's default, Minecraft 1.21.1, on Java 21. `build` compiles the JNI bridge too, so the Visual Studio C++ tools are needed; `package` writes the JAR with the embedded runtime to `versions\26.3\fabric\build\distributions\`, and `.\gradlew.bat releaseArchive "-PmcVersion=26.3" -Parch=win64` builds the installer archive under `build\distributions\`. [Getting Started](docs/GETTING_STARTED.md) covers the toolchain, runtime staging and local overrides.
+
+## ⚠️ Status and known gaps
+
+This is an **alpha** port, played and tested on one machine.
+
+- ✅ World load and upgrade, terrain near and far, block lights, day and night sky, clouds, water, entities, particles, held and thrown items, the Copper Beacon.
+- ✅ The installer, the developer launcher (`tools\rtx.bat`) and the docs target 26.3 and Java 25; zones from 1.21.1 saves carry over.
+- 🧪 Not yet run end to end: the installer itself, and anything on ARM64 hardware.
+- ℹ️ The redstone torch was redesigned in 26.x with an opaque red shell around its head; under path tracing it reads as a glowing cube, which is vanilla's geometry.
+
+Found something broken? [Open an issue](https://github.com/AlexMelanFromRingo/rtx-remix-minecraft/issues) with a screenshot and `logs/latest.log`.
+
+## 📚 Documentation
 
 | You want to | Read |
 |---|---|
-| Play with path tracing | [Playing](docs/PLAYING.md) |
-| Check the known issues | [Issue tracker](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/issues) |
-| Play on a server | [Multiplayer](docs/PLAYING.md#multiplayer) |
 | Configure the renderer | [Settings](docs/SETTINGS.md) |
-| Look up a command, a key, or a mod-added block | [In-Game Guide](docs/IN_GAME_GUIDE.md) |
-| Give your own map its own lighting | [Gameplay-driven profiles](packaging/rtx-remix/mods/minecraft-logic/README.md) |
-| Make a texture pack this renderer understands | [Resource Packs](docs/RESOURCE_PACKS.md) |
-| Record a camera flythrough | [Camera Paths](docs/CAMERA_PATHS.md) |
-| Install, repair, or uninstall in detail | [packaging/INSTALL.md](packaging/INSTALL.md) |
-| Build and run from source | [Getting Started](docs/GETTING_STARTED.md) |
-| Understand loader and version ownership | [Multi-Loader Architecture](docs/MULTI_LOADER_ARCHITECTURE.md) |
-| Tune the developer knobs behind the renderer | [Tuning](docs/TUNING.md) |
-| Diagnose a rendering or native integration problem | [Rendering Diagnostics](docs/RENDERING_DIAGNOSTICS.md) |
-| Contribute a change | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Report a bug | [Reporting a Bug](docs/PLAYING.md#reporting-a-bug) |
-| Report a security vulnerability | [SECURITY.md](SECURITY.md) |
-| See what changed | [Releases](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/releases) |
+| Look up a command, key or mod-added block | [In-Game Guide](docs/IN_GAME_GUIDE.md) |
+| Record camera flythroughs | [Camera Paths](docs/CAMERA_PATHS.md) |
+| Make resource packs with PBR materials | [Resource Packs](docs/RESOURCE_PACKS.md) |
+| Build, debug and contribute | [Getting Started](docs/GETTING_STARTED.md) · [Contributing](CONTRIBUTING.md) |
 
-## Source And Tooling Layout
+## 🤝 Upstream
 
-| Path | Purpose |
-|---|---|
-| `renderer-core/` | Loader-neutral renderer behavior, resources, frame ordering, and core tests |
-| `versions/<version>/minecraft/` | Capture, game integration, UI, and tests shared by that Minecraft target |
-| `versions/<version>/<loader>/` | Thin declared loader adapter for that Minecraft target |
-| `rtxremix-java/` | Minecraft-agnostic Java facade and JNI bridge over the RTX Remix C API |
-| `tools/` | Developer launcher, benchmarks, profiling, SDK staging, and development installation |
-| `packman/` | Packman bootstrap and runtime package pins |
-| `packaging/` | Multi-loader release installer, runtime defaults, and distribution payload |
-| `docs/` | Player, authoring, and source-build guides |
+Everything here is offered back to the original project:
 
-NVIDIA maintains some release and CI tooling outside this repository. It is
-not required by the public Gradle build, the developer tools, or the installed
-mod.
+- [#77](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/pull/77): pick a Visual Studio install that has MSVC in the bridge build (merged)
+- [#78](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/pull/78): migrate from Yarn to Mojang mappings on 1.21.1 (merged)
+- [#79](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft/pull/79): add Minecraft 26.3 as a Fabric target on the multi-version layout (draft)
 
-## Contributing
+This branch is #79's branch plus this README and its screenshots. The first alpha, built on the earlier single-version layout, stays available as the [v0.1.1-26.3-alpha.1](https://github.com/AlexMelanFromRingo/rtx-remix-minecraft/releases/tag/v0.1.1-26.3-alpha.1) release.
 
-External contributions are welcome, and the gaps above are where help matters
-most: compatibility with other mods, coverage of the blocks, mobs, and places a
-real playthrough reaches, and performance on hardware we do not have. Fork this
-repository, create a development branch, and submit a pull request. Sign off
-each commit with `git commit -s` to certify it under the
-[Developer Certificate of Origin](https://developercertificate.org/); there is
-no Contributor License Agreement to sign. See [CONTRIBUTING.md](CONTRIBUTING.md)
-for the full guidelines.
+## 📜 License and credits
 
-Renderer behavior lives in `renderer-core/`, and version-specific Minecraft
-integration lives under `versions/<version>/minecraft/`. Loader modules
-declared by `project-state.json` only register events, translate signatures,
-and provide genuine loader differences. The neutral root enumerates that
-catalog for build, test, package, and release tasks; Minecraft 1.21.1 currently
-declares Fabric, Forge, and NeoForge. See
-[Multi-Loader Architecture](docs/MULTI_LOADER_ARCHITECTURE.md) for the
-approachable overview and [AGENTS.md](AGENTS.md) for detailed invariants and
-validation rules.
+Apache License 2.0, see [LICENSE](LICENSE), [NOTICE](NOTICE) and [third-party notices](THIRD_PARTY_NOTICES.md). The renderer, the RTX Remix runtime integration and the baseline materials are the work of NVIDIA's [RTX Remix for Minecraft](https://github.com/NVIDIAGameWorks/rtx-remix-minecraft) team; this fork carries their work to 26.3.
 
-## License
-
-This project is licensed under the Apache License, Version 2.0 (`Apache-2.0`).
-See the [LICENSE](LICENSE) file. Attribution notices are in [NOTICE](NOTICE),
-and third-party software distributed with this project is documented in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The mod JAR and the
-installer bundle on the Releases page also carry the RTX Remix runtime, whose
-NVIDIA components are covered by their own license terms;
-THIRD_PARTY_NOTICES.md lists them.
-
-NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR
-MICROSOFT. Minecraft is a trademark of Mojang Synergies AB.
-
-NVIDIA, GeForce, and RTX are trademarks and/or registered trademarks of NVIDIA
-Corporation in the U.S. and other countries.
+<sub>An unofficial community fork, not affiliated with or endorsed by NVIDIA. NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT. NVIDIA and RTX are trademarks of NVIDIA Corporation; Minecraft is a trademark of Mojang Synergies AB.</sub>
